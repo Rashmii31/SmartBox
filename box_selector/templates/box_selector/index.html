@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartBox AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #121526;
+            --panel-bg: #1e2235;
+            --panel-bg-light: #262b42;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-pink: #ec4899;
+            --accent-purple: #8b5cf6;
+            --border: rgba(255, 255, 255, 0.05);
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+        }
+
+        /* LEFT COLUMN */
+        .left-col {
+            background: rgba(30, 34, 53, 0.5);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #a78bfa, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .add-item-panel {
+            background: var(--panel-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .add-item-panel h3 {
+            font-size: 1rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .form-row-1 {
+            grid-column: 1 / -1;
+        }
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        input {
+            width: 100%;
+            background: var(--panel-bg-light);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.875rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--accent-purple);
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        .btn-add {
+            width: 100%;
+            background: var(--panel-bg-light);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: var(--accent-purple);
+        }
+
+        /* ITEM LIST */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .item-card {
+            background: var(--panel-bg);
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            background: var(--panel-bg-light);
+            border-radius: 2rem;
+            padding: 0.25rem;
+        }
+
+        .qty-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .qty-val {
+            width: 30px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .btn-remove {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-remove:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* BIG FIND BOX BUTTON */
+        .btn-find-box {
+            width: 100%;
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-find-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .btn-find-box:active {
+            transform: translateY(1px);
+        }
+
+        /* RIGHT COLUMN (RESULT) */
+        .right-col {
+            background: var(--panel-bg);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .box-icon-container {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .result-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            background: linear-gradient(to right, #ec4899, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: var(--bg-dark);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .stat-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .stat-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-lbl {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout-grid">
+        <!-- LEFT COLUMN -->
+        <div class="left-col">
+            <header>
+                <h1>SmartBox AI</h1>
+                <p>Select items to pack and find the optimal shipping box.</p>
+            </header>
+
+            <div class="add-item-panel">
+                <h3>Add Custom Item</h3>
+                <form id="add-form" class="form-grid">
+                    <div class="form-row-1">
+                        <input type="text" id="p-name" placeholder="Item Name" required>
+                    </div>
+                    <div class="form-row-2">
+                        <input type="number" step="0.1" id="p-length" placeholder="L (cm)" required>
+                        <input type="number" step="0.1" id="p-width" placeholder="W (cm)" required>
+                        <input type="number" step="0.1" id="p-height" placeholder="H (cm)" required>
+                        <input type="number" step="0.01" id="p-weight" placeholder="Wt (kg)" required>
+                    </div>
+                    <button type="submit" class="btn-add">Add to List</button>
+                </form>
+            </div>
+
+            <div class="item-list" id="item-list">
+                <!-- Items injected via JS -->
+            </div>
+
+            <button class="btn-find-box" id="btn-find-box" onclick="calculateBox()">Find Best Box</button>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="right-col" id="result-panel">
+            <div class="empty-state" id="empty-state">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+                <p>Click "Find Best Box" to calculate the optimal box.</p>
+            </div>
+            
+            <div id="result-content" style="display: none; width: 100%; align-items: center; flex-direction: column;">
+                <div class="box-icon-container">📦</div>
+                <h2 class="result-title" id="r-name">Medium Box</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-val" id="r-cost">₹150.00</div>
+                        <div class="stat-lbl">Shipping Cost</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="r-weight">5.00 kg</div>
+                        <div class="stat-lbl">Max Capacity</div>
+                    </div>
+                    <div class="stat-card full-width">
+                        <div class="stat-val" id="r-dims">20.00 x 20.00 x 20.00 cm</div>
+                        <div class="stat-lbl">Internal Dimensions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Start with pre-filled items as shown in user's image
+        let items = [
+            {
+                id: 1,
+                name: "Small Gadget",
+                length: "5.00",
+                width: "5.00",
+                height: "5.00",
+                weight: "0.50",
+                quantity: 2
+            },
+            {
+                id: 2,
+                name: "Heavy Paperweight",
+                length: "5.00",
+                width: "5.00",
+                height: "5.00",
+                weight: "4.00",
+                quantity: 1
+            }
+        ];
+
+        const form = document.getElementById('add-form');
+        const listEl = document.getElementById('item-list');
+        const emptyState = document.getElementById('empty-state');
+        const resultContent = document.getElementById('result-content');
+        const btnFindBox = document.getElementById('btn-find-box');
+
+        // Form Submit
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newItem = {
+                id: Date.now(),
+                name: document.getElementById('p-name').value,
+                length: parseFloat(document.getElementById('p-length').value).toFixed(2),
+                width: parseFloat(document.getElementById('p-width').value).toFixed(2),
+                height: parseFloat(document.getElementById('p-height').value).toFixed(2),
+                weight: parseFloat(document.getElementById('p-weight').value).toFixed(2),
+                quantity: 1
+            };
+            items.push(newItem);
+            form.reset();
+            document.getElementById('p-name').focus();
+            renderList();
+        });
+
+        function updateQty(id, delta) {
+            const item = items.find(i => i.id === id);
+            if(item) {
+                item.quantity += delta;
+                if(item.quantity < 0) item.quantity = 0;
+                renderList();
+            }
+        }
+
+        function removeItem(id) {
+            items = items.filter(i => i.id !== id);
+            renderList();
+        }
+
+        function renderList() {
+            listEl.innerHTML = '';
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item-card';
+                div.innerHTML = `
+                    <div class="item-info">
+                        <h4>${item.name}</h4>
+                        <p>${item.length}x${item.width}x${item.height} cm | ${item.weight} kg</p>
+                    </div>
+                    <div class="item-controls">
+                        <!-- Remove Button -->
+                        <button class="btn-remove" onclick="removeItem(${item.id})" title="Remove item entirely">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                        <!-- Quantity Control -->
+                        <div class="qty-control">
+                            <button class="qty-btn" onclick="updateQty(${item.id}, -1)">-</button>
+                            <div class="qty-val">${item.quantity}</div>
+                            <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+                listEl.appendChild(div);
+            });
+            
+            // Hide result when list changes until they click Find Box again
+            emptyState.style.display = 'block';
+            emptyState.innerHTML = '<div style="font-size: 3rem; margin-bottom: 1rem;">📦</div><p>Click "Find Best Box" to calculate the optimal box.</p>';
+            resultContent.style.display = 'none';
+        }
+
+        async function calculateBox() {
+            // Filter out items with 0 quantity for the API request
+            const activeItems = items.filter(i => i.quantity > 0);
+            
+            if (activeItems.length === 0) {
+                emptyState.style.display = 'block';
+                emptyState.innerHTML = '<div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div><p>No items to pack!</p>';
+                resultContent.style.display = 'none';
+                return;
+            }
+
+            // Visual loading state
+            btnFindBox.innerText = "Calculating...";
+            btnFindBox.style.opacity = "0.7";
+
+            try {
+                const response = await fetch('/api/v1/recommend-box/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: activeItems })
+                });
+
+                const data = await response.json();
+
+                emptyState.style.display = 'none';
+                resultContent.style.display = 'flex';
+
+                if (data.success) {
+                    document.getElementById('r-name').innerText = data.box.name;
+                    document.getElementById('r-cost').innerText = '₹' + parseFloat(data.box.cost).toFixed(2);
+                    document.getElementById('r-weight').innerText = parseFloat(data.box.max_weight_capacity).toFixed(2) + ' kg';
+                    document.getElementById('r-dims').innerText = `${parseFloat(data.box.length).toFixed(2)} x ${parseFloat(data.box.width).toFixed(2)} x ${parseFloat(data.box.height).toFixed(2)} cm`;
+                    document.getElementById('r-name').style.background = 'linear-gradient(to right, #ec4899, #a78bfa)';
+                    document.getElementById('r-name').style.webkitBackgroundClip = 'text';
+                } else {
+                    document.getElementById('r-name').innerText = "No Box Found";
+                    document.getElementById('r-cost').innerText = "---";
+                    document.getElementById('r-weight').innerText = "---";
+                    document.getElementById('r-dims').innerText = "Exceeds all capacity";
+                    document.getElementById('r-name').style.background = 'var(--danger)';
+                    document.getElementById('r-name').style.webkitBackgroundClip = 'text';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Failed to reach server. Please ensure it is running.");
+            } finally {
+                // Restore button
+                btnFindBox.innerText = "Find Best Box";
+                btnFindBox.style.opacity = "1";
+            }
+        }
+        
+        // Initial render
+        renderList();
+        
+        // Let's initially calculate the box on page load just like the image shows
+        calculateBox();
+    </script>
+</body>
+</html>
