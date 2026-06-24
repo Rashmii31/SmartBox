@@ -34,7 +34,8 @@ class BoxRecommendationAPI(APIView):
                         "width": "5.00",
                         "height": "5.00",
                         "weight": "0.50",
-                        "quantity": 2
+                        "quantity": 2,
+                        "is_fragile": True
                     }
                 ]
             }

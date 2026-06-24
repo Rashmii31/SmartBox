@@ -84,3 +84,20 @@ class BoxSelectionTests(TestCase):
         # Total weight 1.5kg < 2kg capacity of small box.
         # Should upgrade to Medium box (cheaper than Heavy Small box, volume 8000).
         self.assertEqual(box, self.box_medium)
+
+    def test_fragile_padding(self):
+        """Test fragile items receive 2cm padding on all sides (4cm total)."""
+        # A 9x9x9 item fits perfectly in Small Box (10x10x10) without padding.
+        # With 2cm padding on all sides, it becomes 13x13x13.
+        # It should no longer fit in Small Box or Heavy Small Box (12x12x12), 
+        # but should fit in Medium Box (20x20x20).
+        items = [{
+            'name': 'Glass Ornament', 'length': '9.0', 'width': '9.0', 'height': '9.0', 'weight': '0.5', 'quantity': 1, 'is_fragile': True
+        }]
+        box = select_box(items)
+        self.assertEqual(box, self.box_medium)
+        
+        # Test API correctly processes the is_fragile flag
+        response = self.client.post(self.url, {'items': items}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['box']['name'], "Medium Box")

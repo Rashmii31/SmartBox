@@ -1,6 +1,35 @@
 from decimal import Decimal
 from typing import List, Dict, Any
+from abc import ABC, abstractmethod
 from .models import Box
+
+class ItemModifier(ABC):
+    """Base interface for applying business rules to items before packing."""
+    @abstractmethod
+    def apply(self, item: Dict[str, Any]) -> Dict[str, Any]:
+        pass
+
+class FragilePaddingModifier(ItemModifier):
+    """Adds 2cm padding on all sides (4cm total per dimension) for fragile items."""
+    def apply(self, item: Dict[str, Any]) -> Dict[str, Any]:
+        if item.get('is_fragile', False):
+            # Create a copy to avoid mutating the original input data
+            modified_item = item.copy()
+            padding = Decimal('4.0')
+            modified_item['length'] = Decimal(modified_item['length']) + padding
+            modified_item['width'] = Decimal(modified_item['width']) + padding
+            modified_item['height'] = Decimal(modified_item['height']) + padding
+            return modified_item
+        return item
+
+def apply_modifiers(items_data: List[Dict[str, Any]], modifiers: List[ItemModifier]) -> List[Dict[str, Any]]:
+    processed = []
+    for item in items_data:
+        current_item = item.copy()
+        for mod in modifiers:
+            current_item = mod.apply(current_item)
+        processed.append(current_item)
+    return processed
 
 def select_box(items_data: List[Dict[str, Any]]) -> Box:
     """
@@ -12,12 +41,16 @@ def select_box(items_data: List[Dict[str, Any]]) -> Box:
     - height: Decimal
     - weight: Decimal
     - quantity: int
+    - is_fragile: bool (optional)
     """
+    modifiers = [FragilePaddingModifier()]
+    processed_items = apply_modifiers(items_data, modifiers)
+
     total_weight = Decimal('0.0')
     total_volume = Decimal('0.0')
 
     # Calculate totals
-    for item in items_data:
+    for item in processed_items:
         quantity = Decimal(item.get('quantity', 1))
         weight = Decimal(item['weight'])
         length = Decimal(item['length'])
@@ -40,12 +73,10 @@ def select_box(items_data: List[Dict[str, Any]]) -> Box:
             continue
             
         # 3. Check individual dimensions (3D fitting check)
-        # An item must physically fit inside the box. 
-        # We sort dimensions to handle arbitrary rotations.
         box_dims = sorted([box.length, box.width, box.height], reverse=True)
         
         can_fit_all = True
-        for item in items_data:
+        for item in processed_items:
             item_dims = sorted([
                 Decimal(item['length']), 
                 Decimal(item['width']), 
@@ -60,7 +91,7 @@ def select_box(items_data: List[Dict[str, Any]]) -> Box:
                 break
                 
         if can_fit_all:
-            return box  # Since boxes are ordered by cost, the first fit is the cheapest
+            return box
 
     # No suitable box found
     return None

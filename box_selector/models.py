@@ -9,6 +9,7 @@ class Product(models.Model):
     width = models.DecimalField(max_digits=10, decimal_places=2, help_text="in centimeters (cm)")
     height = models.DecimalField(max_digits=10, decimal_places=2, help_text="in centimeters (cm)")
     weight = models.DecimalField(max_digits=10, decimal_places=2, help_text="in kilograms (kg)")
+    is_fragile = models.BooleanField(default=False, help_text="Requires 2cm padding on all sides")
 
     def __str__(self):
         return self.name
